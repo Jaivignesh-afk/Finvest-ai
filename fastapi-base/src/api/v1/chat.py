@@ -19,6 +19,7 @@ from src.repositories.sqlalchemy import BaseSQLAlchemyRepository
 from fastapi import Query
 from sqlalchemy.ext.asyncio import AsyncSession
 from src.agent.cloudLLM import mcp_gateway, cloud_llm
+from src.agent.stocksummary import handle_query
 
 router = APIRouter(prefix="/chat", tags=["chat"])
 
@@ -51,21 +52,19 @@ async def chat(
     message_repo = BaseSQLAlchemyRepository[Message, MessageCreate, None](Message, db)
     # Explicit commit (optional, already done by db.begin())
     # Call LLM / MCPTool outside transaction if needed
-    text = await AgentRouter(body.user_message)
-    action = handleLLMResponseText(text)
+    # text = await AgentRouter(body.user_message)
+    # action = handleLLMResponseText(text)
 
-    if action == "MCPTool":
-        result = mcp_gateway(body.user_message, session_id=session_id)
-    else:
-        result = await cloud_llm(body.user_message, session_id=session_id)
+    # if action == "MCPTool":
+    #     result = mcp_gateway(body.user_message, session_id=session_id)
+    # else:
+    #     result = await cloud_llm(body.user_message, session_id=session_id)
 
+    result = handle_query(body.user_message)
     # Prepare response message
     message_text = "Chat session created successfully."
     message = Message(
-        user_message=body.user_message,
-        session_id=session_id,
-        ai_reply=result,
-        state="FULFILLED"
+        user_message=body.user_message, session_id=session_id, ai_reply=result, state="FULFILLED"
     )
     message = await message_repo.create(message)
     return IResponseBase[dict](
@@ -75,7 +74,7 @@ async def chat(
             "title": new_session.title if new_session else None,
             "message_id": message.id,
             "action_result": result,
-            "action": action,
+            # "action": action,
         },
     )
 

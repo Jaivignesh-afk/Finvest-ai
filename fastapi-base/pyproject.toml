@@ -30,6 +30,9 @@ dependencies = [
     "langchain>=0.3.27",
     "openapi>=2.0.0",
     "argon2-cffi>=25.1.0",
+    "nsepython>=2.97",
+    "yfinance>=0.2.66",
+    "langchain-huggingface>=0.3.1",
 ]
 
 [tool.isort]

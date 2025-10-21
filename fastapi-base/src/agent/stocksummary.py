@@ -103,8 +103,4 @@ def handle_query(query: str) -> str:
 # =========================
 # 5️⃣ Example
 # =========================
-queries = ["Give me the Dividend Yield of RELIANCE"]
 
-for q in queries:
-    print(f"\n💬 User: {q}")
-    print("🤖 Bot:", handle_query(q))
