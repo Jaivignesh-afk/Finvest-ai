@@ -1,46 +1,32 @@
+import string
 from src.core.config import settings
 import httpx
 import asyncio
 import re
 import logging
 
-
 logger: logging.Logger = logging.getLogger(__name__)
 
-async def AgentRouter(query: str) -> str:
+
+def mcp_gateway(messsage:string,session_id:int) -> str:
+
+    return "The mcp gateway has been choosed"
+
+
+async def cloud_llm(messsage:string,session_id:int) -> str:
+
     """
     Routes the query to the appropriate tool using the Gemini API.
     Includes full error handling, safe response parsing, and logging.
     """
-    logger.info(f"[AgentRouter] Query: {query}")
-
-    prompt = f"""
-You are an intelligent agent with the following tools:
-1. KnowledgeTool — use for general knowledge or explanations.
-2. MCPTool — use for live stock or market data.
-
-Rules:
-- You MUST respond ONLY in the exact format below.
-- Do not include explanations, reasoning, or markdown.
-- Do not output anything outside the format.
-- Do not change field names.
-
-REQUIRED RESPONSE FORMAT:
-User Query: "<original user query>"
-Action: <KnowledgeTool | MCPTool>
-Action Input: "<the specific input or query sent to the tool>"
-Response: "<your answer or explanation based on the chosen tool>"
-
-Now process the following query:
-
-User Query: {query}
-"""
+ 
+ #need to add prompt or COT later for better response
 
     payload = {
         "contents": [
             {
                 "role": "user",
-                "parts": [{"text": prompt}]
+                "parts": [{"text": messsage}]
             }
         ]
     }
@@ -90,19 +76,5 @@ User Query: {query}
         logger.exception(f"[AgentRouter] Unexpected error: {e}")
         return ""
 
-def handleLLMResponseText(data: str) -> str:
-    """
-    Extracts the value of 'Action' from the LLM response text.
-    
-    Example input:
-    "User Query: What is Stock price of TCS
-     Action: MCPTool
-     Action Input: TCS
-     Response: I am sorry ..."
-     
-    Returns: "MCPTool"
-    """
-    match = re.search(r"Action:\s*(\w+)", data)
-    if match:
-        return match.group(1).strip()
-    return ""
+
+    return "The cloud response has been choosed"
